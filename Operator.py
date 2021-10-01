@@ -22,6 +22,7 @@
 
 from typing import List, Optional
 
+import numpy as np
 from onnx.onnx_ml_pb2 import NodeProto
 
 from Tensor import Tensor
@@ -80,6 +81,9 @@ class Operator:
         if self.op_type == "Conv":
             flop = self.input_shape[1] * self.weight.dims[0] * self.kernel_shape[0] * \
                    self.kernel_shape[1] * self.input_shape[2] * self.input_shape[3]
-        elif self.op_type in ["Clip", "Add"]:
-            flop = self.input_shape[0] * self.input_shape[1] * self.input_shape[2] * self.input_shape[3]
+        elif self.op_type in ["Clip", "Add", "GlobalAveragePool"]:
+            flop = np.prod(self.input_shape)
+        elif self.op_type == "Gemm":
+            flop = np.prod(self.input_shape) * np.prod(self.output_shape)
+
         return flop
